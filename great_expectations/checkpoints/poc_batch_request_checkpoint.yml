@@ -1,0 +1,56 @@
+name: poc_batch_request_checkpoint
+config_version: 1.0
+template_name:
+module_name: great_expectations.checkpoint
+class_name: Checkpoint
+run_name_template:
+expectation_suite_name: test_suite
+batch_request: {}
+action_list:
+      #--------------------------------
+      # here is what you will be adding
+      #--------------------------------
+  - name: send_teams_notification_on_validation_result # name can be set to any value
+    action:
+      class_name: MicrosoftTeamsNotificationAction
+          # put the actual webhook URL in the uncommitted/config_variables.yml file
+      microsoft_teams_webhook: ${validation_notification_microsoft_teams_webhook}
+      notify_on: 'all' # possible values: "all", "failure", "success"
+         
+      renderer:
+            # the class that implements the message to be sent
+            # this is the default implementation, but you can implement a custom one
+        module_name: great_expectations.render.renderer.microsoft_teams_renderer
+        class_name: MicrosoftTeamsRenderer
+     #--------------------------------
+    # here is what you will be adding
+    #--------------------------------
+  - name: send_slack_notification_on_validation_result # name can be set to any value
+    action:
+      class_name: SlackNotificationAction
+      # put the actual webhook URL in the uncommitted/config_variables.yml file
+      slack_webhook: ${validation_notification_slack_webhook}
+      notify_on: 'all' # possible values: "all", "failure", "success"
+      notify_with:
+        - local_site
+      renderer:
+        module_name: great_expectations.render.renderer.slack_renderer
+        class_name: SlackRenderer
+    
+  - name: store_validation_result
+    action:
+      class_name: StoreValidationResultAction
+  - name: store_evaluation_params
+    action:
+      class_name: StoreEvaluationParametersAction
+  - name: update_data_docs
+    action:
+      class_name: UpdateDataDocsAction
+      site_names:
+        - local_site
+evaluation_parameters: {}
+runtime_configuration: {}
+validations: []
+profilers: []
+ge_cloud_id:
+expectation_suite_ge_cloud_id:
